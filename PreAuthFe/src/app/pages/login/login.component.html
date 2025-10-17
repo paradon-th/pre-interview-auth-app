@@ -1,0 +1,49 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <mat-card class="w-full max-w-md p-8 shadow-xl rounded-2xl">
+        <mat-card-header class="flex flex-col items-center justify-center text-center">
+            <h1 class="text-4xl font-bold text-primary mb-2">เข้าสู่ระบบ</h1>
+            <p class="text-gray-500">กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ</p>
+        </mat-card-header>
+
+        <mat-card-content class="mt-8">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>อีเมล</mat-label>
+                    <input type="email" matInput formControlName="email" placeholder="Ex. pat@example.com">
+                    <mat-icon matSuffix>email</mat-icon>
+                    <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+                        กรุณากรอกอีเมล
+                    </mat-error>
+                    <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+                        รูปแบบอีเมลไม่ถูกต้อง
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full mt-4">
+                    <mat-label>รหัสผ่าน</mat-label>
+                    <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+                    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+                        กรุณากรอกรหัสผ่าน
+                    </mat-error>
+                </mat-form-field>
+
+                <button mat-raised-button
+                    class="w-full mt-6 h-12 text-lg bg-primary hover:bg-primary-dark text-white rounded-lg"
+                    [disabled]="!loginForm.valid">
+                    เข้าสู่ระบบ
+                </button>
+
+            </form>
+            <div class="flex text-center mt-6 text-sm">
+                <span class="text-gray-600">ยังไม่มีบัญชี? </span>
+                <a routerLink="/register" class="ml-2 font-semibold text-primary cursor-pointer hover:text-primary-dark underline">
+                    สร้างบัญชีใหม่
+                </a>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

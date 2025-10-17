@@ -1,0 +1,6 @@
+@PreAuthBe_HostAddress = http://localhost:5058
+
+GET {{PreAuthBe_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

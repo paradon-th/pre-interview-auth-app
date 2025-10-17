@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # --- Backend Service ---
+  backend:
+    build:
+      context: ./PreAuthBe 
+      dockerfile: Dockerfile
+    container_name: preauth_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=preauthdb;Username=postgres;Password=syspass;
+      - Jwt__Key=p@qB*v$z&E)H+MbQeThWmZq4t7w!z%C*F-J@NcRfk-fIHDSFJ$IHNVkd+fnkj)jcixvdsdfp@qB*v$z&E)H+MbQeTDSFJ$IHNVkd+fnkj)jw!
+      - Jwt__Issuer=PreAuthBe
+      - Jwt__Audience=PreAuthFe
+      - ASPNETCORE_ENVIRONMENT=Development # Added this line
+    depends_on:
+      - postgres-db
+
+  # --- Frontend Service ---
+  frontend:
+    build:
+      context: ./PreAuthFe 
+      dockerfile: Dockerfile
+    container_name: preauth_frontend
+    ports:
+      - "4200:4000"
+    depends_on:
+      - backend
+
+  # --- Database Service ---
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: preauth_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=syspass
+      - POSTGRES_DB=preauthdb 
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

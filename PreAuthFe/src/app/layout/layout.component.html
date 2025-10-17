@@ -1,0 +1,9 @@
+<mat-toolbar class="flex justify-between bg-primary text-white shadow-lg">
+    <span class="text-xl font-bold">PreAuth Project</span>
+
+    <button mat-icon-button *ngIf="authService.isLoggedIn()" (click)="onLogout()" aria-label="Logout">
+        <mat-icon>logout</mat-icon>
+    </button>
+</mat-toolbar>
+
+<router-outlet></router-outlet>
