@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using PreAuthBe;
 using PreAuthBe.Data;
 using PreAuthBe.Services;
+using PreAuthBe.Abstractions;
+using PreAuthBe.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -52,7 +61,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseMiddleware<ErrorHandlingMiddleware>();
 // app.UseHttpsRedirection();
 
 app.UseCors("AllowSpecificOrigin");

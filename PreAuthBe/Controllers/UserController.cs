@@ -1,11 +1,9 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PreAuthBe.Data;
 using PreAuthBe.DTOs;
 using PreAuthBe.Entities;
-using System.Security.Claims;
+using PreAuthBe.Abstractions;
 
 namespace PreAuthBe.Controllers;
 
@@ -14,77 +12,45 @@ namespace PreAuthBe.Controllers;
 [Authorize]
 public class UserController : ControllerBase
 {
-    private readonly AppDbContext  _context;
-    public UserController(AppDbContext context)
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        _context = context;
+        _userService = userService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        var user = await _context.Users
-            .Select(u => new { u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Role })
-            .ToListAsync();
-        return Ok(user);
+        var users = await _userService.GetAllUsersAsync();
+        return Ok(users);
     }
     
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDto updateUserDto)
     {
-        var currentAdminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (id.ToString() == currentAdminId)
+        var currentAdminId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _userService.UpdateUserAsync(id, currentAdminId, updateUserDto);
+        if (!result.IsSuccess)
         {
-            return BadRequest(new { message = "คุณไม่สามารถแก้ไขบัญชีของคุณเองได้" });
+            return BadRequest(new { message = result.Error });
         }
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
-        
-        if (updateUserDto.FirstName != null)
-        {
-            user.FirstName = updateUserDto.FirstName;
-        }
-        if (updateUserDto.LastName != null)
-        {
-            user.LastName = updateUserDto.LastName;
-        }
-        if (updateUserDto.Email != null)
-        {
-            user.Email = updateUserDto.Email;
-        }
-        if (updateUserDto.Role != null)
-        {
-            user.Role = updateUserDto.Role;
-        }
-
-        await _context.SaveChangesAsync();
-
-        return NoContent(); 
+        return NoContent();
     }
     
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var currentAdminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (id.ToString() == currentAdminId)
-        {
-            return BadRequest(new {message = "คุณไม่สามารถลบบัญชีของคุณเองได้"});
-        }
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
+        var currentAdminId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        var result = await _userService.DeleteUserAsync(id, currentAdminId);
 
-        return NoContent(); 
+        if (!result.IsSuccess)
+        {
+            return BadRequest(new { message = result.Error });
+        }
+        return NoContent();
     }
 }
