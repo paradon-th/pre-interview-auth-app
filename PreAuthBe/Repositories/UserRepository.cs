@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PreAuthBe.Abstractions;
+using PreAuthBe.Common;
 using PreAuthBe.Data;
 using PreAuthBe.Entities;
 
@@ -39,11 +40,17 @@ public class UserRepository : IUserRepository
         _context.Users.Remove(user);
     }
     
-    public async Task<IEnumerable<object>> GetAllUsersAsync()
+    public async Task<PaginatedResult<object>> GetAllUsersAsync(int pageIndex, int pageSize)
     {
-        return await _context.Users
+        var totalCount = await _context.Users.CountAsync();
+        
+        var items = await _context.Users
             .Select(u => new { u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Role })
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+        
+        return new PaginatedResult<object>(items, totalCount);
     }
 
     public async Task<bool> SaveChangesAsync()

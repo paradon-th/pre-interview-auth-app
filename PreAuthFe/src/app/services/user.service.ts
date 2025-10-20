@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface UserData {
@@ -19,6 +19,11 @@ export interface UpdateUserData {
   role?: string;
 }
 
+export interface PaginatedUsers {
+  items: UserData[];
+  totalCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,8 +32,11 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  getUsers(): Observable<UserData[]> {
-    return this.http.get<UserData[]>(`${this.apiUrl}/user`);
+  getUsers(pageIndex: number, pageSize: number): Observable<PaginatedUsers> {
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<PaginatedUsers>(`${this.apiUrl}/user`, { params });
   }
 
   deleteUser(userId: string): Observable<void> {

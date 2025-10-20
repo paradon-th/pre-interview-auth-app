@@ -8,8 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
-import { response } from 'express';
 import { NotificationService } from '../../services/notification.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-register',
@@ -21,6 +21,7 @@ import { NotificationService } from '../../services/notification.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatProgressBarModule,
     MatIconModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
@@ -40,11 +41,14 @@ export class RegisterComponent {
     password: new FormControl('', [Validators.required]),
   })
   hidePassword = true;
+  isLoading = false;
 
   onSubmit() {
     if (!this.registerForm.valid) {
       return;
     }
+    this.isLoading = true;
+
     const data = this.registerForm.getRawValue();
     this.authService.regiser({ 
       firstname: data.firstname!, 
@@ -54,10 +58,12 @@ export class RegisterComponent {
       password: data.password! })
       .subscribe({
         next: (response) => {
+          this.isLoading = false;
           this.notification.showSuccess('ลงทะเบียนผู้ใช้เรียบร้อยแล้ว');
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          this.isLoading = false;
           const errorMessage = err.error?.message || err.statusText || 'เกิดข้อผิดพลาดที่ไม่คาดคิด';
           this.notification.showError(errorMessage);
         }

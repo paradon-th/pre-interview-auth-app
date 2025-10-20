@@ -10,6 +10,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 @Component({
@@ -23,7 +24,8 @@ import { NotificationService } from '../../services/notification.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule],
+    MatIconModule,
+    MatProgressBarModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -33,6 +35,7 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required]),
   })
   hidePassword = true;
+  isLoading = false;
 
   constructor(
     private authService: AuthService,
@@ -45,15 +48,19 @@ export class LoginComponent {
       return;
     }
 
+    this.isLoading = true;
+
     const data = this.loginForm.getRawValue();
     this.authService.login({ email: data.email!, password: data.password! })
       .subscribe({
         next: (response) => {
+          this.isLoading = false;
           this.notification.showSuccess('เข้าสู่ระบบสำเร็จ');
           localStorage.setItem('authToken', response.token);
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          this.isLoading = false;
           const errorMessage = err.error?.message || err.statusText || 'เกิดข้อผิดพลาดที่ไม่คาดคิด';
           this.notification.showError(errorMessage);
         }

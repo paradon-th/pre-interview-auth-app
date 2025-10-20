@@ -1,4 +1,5 @@
-﻿using PreAuthBe.Entities;
+﻿using PreAuthBe.Common;
+using PreAuthBe.Entities;
 
 namespace PreAuthBe.Abstractions;
 
@@ -9,6 +10,6 @@ public interface IUserRepository
     Task<bool> DoesUserExistAsync(string email);
     void Add(User user);
     void Remove(User user);
-    Task<IEnumerable<object>> GetAllUsersAsync();
+    Task<PaginatedResult<object>> GetAllUsersAsync(int pageIndex, int pageSize);
     Task<bool> SaveChangesAsync();
 }

@@ -8,7 +8,7 @@ public interface IUserService
 {
     Task<Result<string>> LoginAsync(LoginDto loginDto);
     Task<Result> RegisterAsync(RegisterDto registerDto);
-    Task<IEnumerable<object>> GetAllUsersAsync();
+    Task<PaginatedResult<object>> GetAllUsersAsync(int pageIndex, int pageSize);
     Task<Result> DeleteUserAsync(Guid idToDelete, Guid currentAdminId);
     Task<Result> UpdateUserAsync(Guid idToUpdate, Guid currentAdminId, UpdateUserDto updateUserDto);
 }

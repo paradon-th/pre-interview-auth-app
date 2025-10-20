@@ -58,9 +58,9 @@ public class UserService : IUserService
         return Result.Ok();
     }
     
-    public async Task<IEnumerable<object>> GetAllUsersAsync()
+    public async Task<PaginatedResult<object>> GetAllUsersAsync(int pageIndex, int pageSize)
     {
-        return await _userRepository.GetAllUsersAsync();
+        return await _userRepository.GetAllUsersAsync(pageIndex, pageSize);
     }
     
     public async Task<Result>  DeleteUserAsync(Guid idToDelete, Guid currentAdminId)
